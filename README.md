@@ -20,7 +20,7 @@ Account details, IP addresses, countries, devices, exact timestamps, private-ses
 
 A qualified listen is an audio music record with a valid Spotify track ID, lasting at least 30 seconds, outside a private session. Listening time sums reported durations of qualifying records only. Short skips do not count. Track versions with different Spotify IDs are separate tracks. Partial first/last years and missing days reflect the export, not inferred activity.
 
-The river shows the ten leading artists in the selected period, plus all others. Layer thickness encodes the selected metric. Curves interpolate monthly observations; tooltips report actual month totals. Calendar intensity is scaled within its chosen year. The receipt always ranks by play count, regardless of the chart metric or artist selection.
+The river shows the ten leading artists in the selected period by default. “Include other artists” adds the rest of the collection as one group. Layer thickness encodes the selected metric. Curves interpolate monthly observations; tooltips report actual month totals. Calendar intensity is scaled within its chosen year. The receipt always ranks by play count, regardless of the chart metric or artist selection.
 
 ## Regenerate and audit
 

@@ -1,30 +1,352 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10110f"><meta name="description" content="Devin's listening atlas. Explore six years of music through flowing artist timelines, listening rhythms, and the songs on repeat.">
-<title>On Repeat — Devin’s listening atlas</title>
-<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css">
-<script src="vendor/d3.min.js" defer></script><script src="app.js" defer></script>
-</head>
-<body>
-<a href="#main" class="skip-link">Skip to listening atlas</a>
-<header class="site-header"><a class="wordmark" href="#"><svg viewBox="0 0 30 30" aria-hidden="true"><path d="M3 12v6m6-12v18m6-24v30m6-24v18m6-12v6"/></svg> ON REPEAT<span class="wordmark-sub">A LISTENING ATLAS</span></a><nav aria-label="Main"><a href="#flow">The flow</a><a href="#favorites">On rotation</a><a href="#rhythm">The rhythm</a></nav><button id="receipt-open" class="button small">Your receipt <span aria-hidden="true">▤</span></button></header>
-<main id="main">
-<section class="intro"><div><p class="eyebrow">THE SOUNDTRACK SO FAR <span id="date-range"></span></p><h1>Devin, <em>on repeat.</em></h1><p class="intro-copy">Different years. Different obsessions. One continuous soundtrack.</p></div><div class="intro-note"><span class="tiny-label">FROM THE ARCHIVE</span><span id="archive-count">Loading the music…</span><span class="muted">A personal history in sound.</span></div></section>
-<div id="loading" role="status">Tuning into the archive…</div>
-<div id="app" hidden>
-<div class="controls"><div id="years" class="year-tabs" aria-label="Choose a year"></div><div class="metric-toggle" aria-label="Chart metric"><button data-metric="ms" class="active" aria-pressed="true">Listening time</button><button data-metric="plays" aria-pressed="false">Plays</button></div></div>
-<div class="stats" aria-live="polite"><div><span class="stat-label">TIME WELL SPENT</span><strong id="stat-hours"></strong><span class="stat-unit">hours of music</span></div><div><span class="stat-label">PRESSING PLAY</span><strong id="stat-plays"></strong><span class="stat-unit">listens · 30 seconds or more</span></div><div><span class="stat-label">IN GOOD COMPANY</span><strong id="stat-artists"></strong><span class="stat-unit">different artists</span></div><div><span class="stat-label">FOUND YOUR FREQUENCY</span><strong id="stat-tracks"></strong><span class="stat-unit">unique tracks</span></div></div>
-<section id="flow" class="flow-section"><div class="section-top"><div><p class="eyebrow"><span class="section-number">01</span> YOUR TASTE, IN MOTION</p><h2>The listening river.</h2></div><div class="flow-meta"><span id="flow-note">Every color is an artist. Every curve is a chapter.</span><div class="view-toggle"><button data-mode="flow" class="active" aria-pressed="true">Flow</button><button data-mode="stack" aria-pressed="false">Stack</button></div></div></div><div class="chart-shell"><svg id="river" role="group" aria-label="Monthly listening time by artist"></svg><div class="chart-watermark" aria-hidden="true">SOUND IN<br>MOTION.</div><div id="river-empty" hidden>No listening data for this period.</div></div><div class="chart-foot"><span>JAN <span id="first-year"></span></span><span class="chart-hint">Hover to explore · select an artist to dive in</span><span id="end-label"></span></div><div id="legend" class="legend"></div><div id="month-insight" class="insight"><span aria-hidden="true">✳</span><p></p></div></section>
-<section id="favorites" class="favorites-section"><div class="section-top"><div><p class="eyebrow"><span class="section-number">02</span> THE HEAVY ROTATION</p><h2>Some things just stick.</h2></div><span id="period-label" class="period-chip"></span></div><div class="favorites-grid"><div class="artist-panel"><div class="panel-heading"><h3>The regulars</h3><span>TOP ARTISTS</span></div><div id="artists"></div><button id="clear-artist" class="text-button" hidden>Clear artist selection ×</button></div><div class="tracks-panel"><div class="panel-heading"><h3 id="tracks-heading">Forever on repeat</h3><span>TOP TRACKS</span></div><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="track-search" type="search" placeholder="Find a song or artist" aria-label="Find a song or artist"></label><div id="tracks" aria-live="polite"></div><button id="more-tracks" class="text-button">Show more tracks +</button></div></div></section>
-<section id="rhythm" class="rhythm-section"><div class="section-top"><div><p class="eyebrow"><span class="section-number">03</span> YOUR INNER METRONOME</p><h2>A rhythm of your own.</h2></div><span class="muted">All hours and dates in UTC</span></div><div class="rhythm-grid"><div class="clock-panel"><div class="panel-heading"><h3>Round the clock</h3><span>24 HOURS</span></div><svg id="clock" role="group" aria-label="Listening distribution across 24 hours in UTC"></svg><p id="clock-caption" class="chart-caption"></p></div><div class="calendar-panel"><div class="panel-heading"><h3 id="calendar-title">Days with a soundtrack</h3><label class="calendar-picker">Calendar <select id="calendar-year" aria-label="Calendar year"></select></label></div><div class="calendar-scroll"><svg id="calendar" role="group" aria-label="Daily listening heatmap. Use arrow keys to move between dates."></svg></div><div class="calendar-key"><span>Silence</span><i></i><i></i><i></i><i></i><i></i><span>On repeat</span></div><p id="calendar-caption" class="chart-caption"></p><div class="weekdays-heading"><span class="tiny-label">THE WEEKLY GROOVE</span><span class="muted">Share of selected listening</span></div><div id="weekdays" class="weekdays"></div></div></div></section>
-<section class="outro"><div><p class="eyebrow">KEEP A LITTLE PIECE OF IT</p><h2>Good taste. On the record.</h2><p>Your most-played tracks, in a receipt worth keeping.</p></div><button class="button lime" id="receipt-open-bottom">Make my receipt <span aria-hidden="true">▤</span></button></section>
-<details class="about"><summary>Behind the music <span>Method, privacy & inspiration</span></summary><div class="about-grid"><div><h3>What counts as a listen?</h3><p>Music plays lasting at least 30 seconds. Listening time is the reported duration of those plays. Short skips, private-session plays, podcasts, audiobooks, and video exports are excluded. Years at the edges of the export can be partial. Track versions with different Spotify IDs count separately.</p><p>Chart thickness represents monthly listening time or plays. The ten leading artists in the selected period have their own colors; all others are grouped. Smooth curves connect monthly observations; use tooltips for measured values.</p></div><div><h3>Just the music.</h3><p>Only Devin’s first name, public music metadata, and aggregate listening statistics are included. No account details, IP addresses, countries, device information, exact listening timestamps, or original exports. There are no playlist records in this export. No analytics, cookies, or Spotify login.</p><p>The listening clock and calendar use UTC, the export’s time basis. They do not reveal a location or infer a home time zone.</p></div><div><h3>Inspired by the good stuff.</h3><p><a href="https://leebyron.com/streamgraph/" target="_blank" rel="noreferrer">Lee Byron’s streamgraphs</a> for music in motion. <a href="https://receiptify.herokuapp.com/about.html" target="_blank" rel="noreferrer">Receiptify</a> for a familiar keepsake. <a href="https://pudding.cool/2017/03/music-history/" target="_blank" rel="noreferrer">The Pudding</a> for exploring time. <a href="https://www.dear-data.com/theproject" target="_blank" rel="noreferrer">Dear Data</a> for finding stories in everyday patterns.</p><p>Built with <a href="https://d3js.org/" target="_blank" rel="noreferrer">D3</a>. An independent personal project, unaffiliated with Spotify.</p></div></div></details>
-</div>
-</main>
-<footer><a class="wordmark" href="#">ON REPEAT <span>© DEVIN</span></a><span>THE MUSIC CHANGES. THE STORY CONTINUES.</span></footer>
-<div id="tooltip" class="tooltip" role="status" hidden></div>
-<dialog id="receipt-dialog" aria-labelledby="receipt-title"><div class="dialog-controls"><button id="receipt-save" class="button small">Save as SVG</button><button id="receipt-close" class="icon-button" aria-label="Close receipt">×</button></div><div id="receipt"><p class="receipt-mark">ON REPEAT</p><h2 id="receipt-title">DEVIN’S<br>LISTENING RECEIPT</h2><p id="receipt-period"></p><div class="receipt-rule"></div><div class="receipt-column"><span>QTY / TRACK</span><span>PLAYS</span></div><ol id="receipt-tracks"></ol><div class="receipt-rule"></div><div class="receipt-column"><strong>TOTAL LISTENING</strong><strong id="receipt-total"></strong></div><p class="receipt-thanks">THANK YOU FOR THE MUSIC.<br>KEEP LISTENING.</p><div class="barcode" aria-hidden="true"></div><p class="receipt-small">A PERSONAL SOUNDTRACK • 30s+ MUSIC PLAYS</p></div></dialog>
-<noscript>This listening atlas needs JavaScript to draw its interactive charts. The sanitized dataset is available in <a href="data/history.json">data/history.json</a>.</noscript>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#10110f" />
+    <meta
+      name="description"
+      content="Devin's listening atlas. Explore six years of music through flowing artist timelines, listening rhythms, and the songs on repeat."
+    />
+    <title>On Repeat — Devin’s listening atlas</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="vendor/d3.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to listening atlas</a>
+    <header class="site-header">
+      <a class="wordmark" href="#"
+        ><svg viewBox="0 0 30 30" aria-hidden="true">
+          <path d="M3 12v6m6-12v18m6-24v30m6-24v18m6-12v6" />
+        </svg>
+        ON REPEAT<span class="wordmark-sub">A LISTENING ATLAS</span></a
+      >
+      <nav aria-label="Main">
+        <a href="#flow">The flow</a><a href="#favorites">On rotation</a
+        ><a href="#rhythm">The rhythm</a>
+      </nav>
+      <button id="receipt-open" class="button small">
+        Your receipt <span aria-hidden="true">▤</span>
+      </button>
+    </header>
+    <main id="main">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">
+            THE SOUNDTRACK SO FAR <span id="date-range"></span>
+          </p>
+          <h1>Devin, <em>on repeat.</em></h1>
+          <p class="intro-copy">
+            Different years. Different obsessions. One continuous soundtrack.
+          </p>
+        </div>
+        <div class="intro-note">
+          <span class="tiny-label">FROM THE ARCHIVE</span
+          ><span id="archive-count">Loading the music…</span
+          ><span class="muted">A personal history in sound.</span>
+        </div>
+      </section>
+      <div id="loading" role="status">Tuning into the archive…</div>
+      <div id="app" hidden>
+        <div class="controls">
+          <div id="years" class="year-tabs" aria-label="Choose a year"></div>
+          <div class="metric-toggle" aria-label="Chart metric">
+            <button data-metric="ms" class="active" aria-pressed="true">
+              Listening time</button
+            ><button data-metric="plays" aria-pressed="false">Plays</button>
+          </div>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div>
+            <span class="stat-label">TIME WELL SPENT</span
+            ><strong id="stat-hours"></strong
+            ><span class="stat-unit">hours of music</span>
+          </div>
+          <div>
+            <span class="stat-label">PRESSING PLAY</span
+            ><strong id="stat-plays"></strong
+            ><span class="stat-unit">listens · 30 seconds or more</span>
+          </div>
+          <div>
+            <span class="stat-label">IN GOOD COMPANY</span
+            ><strong id="stat-artists"></strong
+            ><span class="stat-unit">different artists</span>
+          </div>
+          <div>
+            <span class="stat-label">FOUND YOUR FREQUENCY</span
+            ><strong id="stat-tracks"></strong
+            ><span class="stat-unit">unique tracks</span>
+          </div>
+        </div>
+        <section id="flow" class="flow-section">
+          <div class="section-top">
+            <div>
+              <p class="eyebrow">
+                <span class="section-number">01</span> YOUR TASTE, IN MOTION
+              </p>
+              <h2>The listening river.</h2>
+            </div>
+            <div class="flow-meta">
+              <span id="flow-note"
+                >Every color is an artist. Every curve is a chapter.</span
+              >
+              <div class="view-toggle">
+                <button data-mode="flow" class="active" aria-pressed="true">
+                  Flow</button
+                ><button data-mode="stack" aria-pressed="false">Stack</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-shell">
+            <svg
+              id="river"
+              role="group"
+              aria-label="Monthly listening time by artist"
+            ></svg>
+            <div class="chart-watermark" aria-hidden="true">
+              SOUND IN<br />MOTION.
+            </div>
+            <div id="river-empty" hidden>
+              No listening data for this period.
+            </div>
+          </div>
+          <div class="chart-foot">
+            <span>JAN <span id="first-year"></span></span
+            ><span class="chart-hint"
+              >Hover to explore · select an artist to dive in</span
+            ><span id="end-label"></span>
+          </div>
+          <div id="legend" class="legend"></div>
+          <div id="month-insight" class="insight">
+            <span aria-hidden="true">✳</span>
+            <p></p>
+          </div>
+        </section>
+        <section id="favorites" class="favorites-section">
+          <div class="section-top">
+            <div>
+              <p class="eyebrow">
+                <span class="section-number">02</span> THE HEAVY ROTATION
+              </p>
+              <h2>Some things just stick.</h2>
+            </div>
+            <span id="period-label" class="period-chip"></span>
+          </div>
+          <div class="favorites-grid">
+            <div class="artist-panel">
+              <div class="panel-heading">
+                <h3>The regulars</h3>
+                <span>TOP ARTISTS</span>
+              </div>
+              <div id="artists"></div>
+              <button id="clear-artist" class="text-button" hidden>
+                Clear artist selection ×
+              </button>
+            </div>
+            <div class="tracks-panel">
+              <div class="panel-heading">
+                <h3 id="tracks-heading">Forever on repeat</h3>
+                <span>TOP TRACKS</span>
+              </div>
+              <label class="search"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="10" cy="10" r="6" />
+                  <path d="m15 15 5 5" /></svg
+                ><input
+                  id="track-search"
+                  type="search"
+                  placeholder="Find a song or artist"
+                  aria-label="Find a song or artist"
+              /></label>
+              <div id="tracks" aria-live="polite"></div>
+              <button id="more-tracks" class="text-button">
+                Show more tracks +
+              </button>
+            </div>
+          </div>
+        </section>
+        <section id="rhythm" class="rhythm-section">
+          <div class="section-top">
+            <div>
+              <p class="eyebrow">
+                <span class="section-number">03</span> YOUR INNER METRONOME
+              </p>
+              <h2>A rhythm of your own.</h2>
+            </div>
+            <span class="muted">All hours and dates in UTC</span>
+          </div>
+          <div class="rhythm-grid">
+            <div class="clock-panel">
+              <div class="panel-heading">
+                <h3>Round the clock</h3>
+                <span>24 HOURS</span>
+              </div>
+              <svg
+                id="clock"
+                role="group"
+                aria-label="Listening distribution across 24 hours in UTC"
+              ></svg>
+              <p id="clock-caption" class="chart-caption"></p>
+            </div>
+            <div class="calendar-panel">
+              <div class="panel-heading">
+                <h3 id="calendar-title">Days with a soundtrack</h3>
+                <label class="calendar-picker"
+                  >Calendar
+                  <select id="calendar-year" aria-label="Calendar year"></select
+                ></label>
+              </div>
+              <div class="calendar-scroll">
+                <svg
+                  id="calendar"
+                  role="group"
+                  aria-label="Daily listening heatmap. Use arrow keys to move between dates."
+                ></svg>
+              </div>
+              <div class="calendar-key">
+                <span>Silence</span><i></i><i></i><i></i><i></i><i></i
+                ><span>On repeat</span>
+              </div>
+              <p id="calendar-caption" class="chart-caption"></p>
+              <div class="weekdays-heading">
+                <span class="tiny-label">THE WEEKLY GROOVE</span
+                ><span class="muted">Share of selected listening</span>
+              </div>
+              <div id="weekdays" class="weekdays"></div>
+            </div>
+          </div>
+        </section>
+        <section class="outro">
+          <div>
+            <p class="eyebrow">KEEP A LITTLE PIECE OF IT</p>
+            <h2>Good taste. On the record.</h2>
+            <p>Your most-played tracks, in a receipt worth keeping.</p>
+          </div>
+          <button class="button lime" id="receipt-open-bottom">
+            Make my receipt <span aria-hidden="true">▤</span>
+          </button>
+        </section>
+        <details class="about">
+          <summary>
+            Behind the music <span>Method, privacy & inspiration</span>
+          </summary>
+          <div class="about-grid">
+            <div>
+              <h3>What counts as a listen?</h3>
+              <p>
+                Music plays lasting at least 30 seconds. Listening time is the
+                reported duration of those plays. Short skips, private-session
+                plays, podcasts, audiobooks, and video exports are excluded.
+                Years at the edges of the export can be partial. Track versions
+                with different Spotify IDs count separately.
+              </p>
+              <p>
+                Chart thickness represents monthly listening time or plays. The
+                ten leading artists in the selected period are shown by default.
+                Choose “Include other artists” to add the rest of the collection
+                as one group. Smooth curves connect monthly observations; use
+                tooltips for measured values.
+              </p>
+            </div>
+            <div>
+              <h3>Just the music.</h3>
+              <p>
+                Only Devin’s first name, public music metadata, and aggregate
+                listening statistics are included. No account details, IP
+                addresses, countries, device information, exact listening
+                timestamps, or original exports. There are no playlist records
+                in this export. No analytics, cookies, or Spotify login.
+              </p>
+              <p>
+                The listening clock and calendar use UTC, the export’s time
+                basis. They do not reveal a location or infer a home time zone.
+              </p>
+            </div>
+            <div>
+              <h3>Inspired by the good stuff.</h3>
+              <p>
+                <a
+                  href="https://leebyron.com/streamgraph/"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Lee Byron’s streamgraphs</a
+                >
+                for music in motion.
+                <a
+                  href="https://receiptify.herokuapp.com/about.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Receiptify</a
+                >
+                for a familiar keepsake.
+                <a
+                  href="https://pudding.cool/2017/03/music-history/"
+                  target="_blank"
+                  rel="noreferrer"
+                  >The Pudding</a
+                >
+                for exploring time.
+                <a
+                  href="https://www.dear-data.com/theproject"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Dear Data</a
+                >
+                for finding stories in everyday patterns.
+              </p>
+              <p>
+                Built with
+                <a href="https://d3js.org/" target="_blank" rel="noreferrer"
+                  >D3</a
+                >. An independent personal project, unaffiliated with Spotify.
+              </p>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+    <footer>
+      <a class="wordmark" href="#">ON REPEAT <span>© DEVIN</span></a
+      ><span>THE MUSIC CHANGES. THE STORY CONTINUES.</span>
+    </footer>
+    <div id="tooltip" class="tooltip" role="status" hidden></div>
+    <dialog id="receipt-dialog" aria-labelledby="receipt-title">
+      <div class="dialog-controls">
+        <button id="receipt-save" class="button small">Save as SVG</button
+        ><button
+          id="receipt-close"
+          class="icon-button"
+          aria-label="Close receipt"
+        >
+          ×
+        </button>
+      </div>
+      <div id="receipt">
+        <p class="receipt-mark">ON REPEAT</p>
+        <h2 id="receipt-title">DEVIN’S<br />LISTENING RECEIPT</h2>
+        <p id="receipt-period"></p>
+        <div class="receipt-rule"></div>
+        <div class="receipt-column">
+          <span>QTY / TRACK</span><span>PLAYS</span>
+        </div>
+        <ol id="receipt-tracks"></ol>
+        <div class="receipt-rule"></div>
+        <div class="receipt-column">
+          <strong>TOTAL LISTENING</strong><strong id="receipt-total"></strong>
+        </div>
+        <p class="receipt-thanks">
+          THANK YOU FOR THE MUSIC.<br />KEEP LISTENING.
+        </p>
+        <div class="barcode" aria-hidden="true"></div>
+        <p class="receipt-small">A PERSONAL SOUNDTRACK • 30s+ MUSIC PLAYS</p>
+      </div>
+    </dialog>
+    <noscript
+      >This listening atlas needs JavaScript to draw its interactive charts. The
+      sanitized dataset is available in
+      <a href="data/history.json">data/history.json</a>.</noscript
+    >
+  </body>
+</html>

@@ -165,7 +165,6 @@ main {
   margin: 0 0 12px;
 }
 .eyebrow #date-range {
-  margin-left: 13px;
   color: #dcf88b;
 }
 .intro h1 {
@@ -1265,7 +1264,7 @@ section {
     padding: 0 5%;
   }
   .intro .eyebrow #date-range {
-    margin-left: 8px;
+    margin-left: 0;
   }
   .calendar-key {
     margin-top: 5px;

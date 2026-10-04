@@ -358,9 +358,6 @@ window.Origins = (() => {
       $("#origins-loading").hidden = true;
       $("#origins-content").hidden = false;
       render();
-      // Resolve deep links after both datasets have populated the page layout.
-      const target = document.getElementById(location.hash.slice(1));
-      if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
       let timer;
       window.addEventListener("resize", () => {
         clearTimeout(timer);
@@ -372,5 +369,8 @@ window.Origins = (() => {
       console.error(e);
     }
   }
-  return { init };
+  function refresh() {
+    if (thenSongs && !$("#then-now-panel").hidden) renderMemory();
+  }
+  return { init, refresh };
 })();

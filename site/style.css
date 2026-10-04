@@ -2161,3 +2161,43 @@ section {
     font-size: 11px;
   }
 }
+/* Primary views stay visible at every screen size. */
+.view-tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #3b4431;
+  margin: 0 0 22px;
+  scroll-margin-top: 20px;
+}
+.view-tabs [role="tab"] {
+  background: transparent;
+  color: #9ba88b;
+  border-bottom: 3px solid transparent;
+  padding: 12px 2px 14px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.view-tabs [role="tab"]:hover {
+  color: #eef3e6;
+}
+.view-tabs [aria-selected="true"] {
+  color: #e5f6cb;
+  border-bottom-color: #dcf88b;
+}
+.view-tabs #then-now-tab[aria-selected="true"] {
+  color: #efc0a0;
+  border-bottom-color: #e6a77d;
+}
+#then-now-panel .origins-section {
+  padding-top: 15px;
+}
+@media (max-width: 600px) {
+  .view-tabs {
+    gap: 26px;
+    margin-bottom: 18px;
+  }
+  .view-tabs [role="tab"] {
+    font-size: 15px;
+    padding-top: 10px;
+  }
+}

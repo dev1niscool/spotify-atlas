@@ -10,10 +10,10 @@
     />
     <title>On Repeat — Devin’s listening atlas</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=3577775873dd" />
+    <link rel="stylesheet" href="style.css?v=db84711ea267" />
     <script src="vendor/d3.min.js" defer></script>
-    <script src="comparison.js?v=abba4cce1575" defer></script>
-    <script src="app.js?v=d9252f9bda62" defer></script>
+    <script src="comparison.js?v=59d546c41fb0" defer></script>
+    <script src="app.js?v=6169a6a706fb" defer></script>
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to listening atlas</a>
@@ -24,9 +24,9 @@
         </svg>
         ON REPEAT<span class="wordmark-sub">A LISTENING ATLAS</span></a
       >
-      <nav aria-label="Main">
-        <a href="#then-now">Then &amp; now</a><a href="#flow">The flow</a
-        ><a href="#favorites">On rotation</a><a href="#rhythm">The rhythm</a>
+      <nav id="atlas-section-nav" aria-label="Atlas sections">
+        <a href="#flow">The flow</a><a href="#favorites">On rotation</a
+        ><a href="#rhythm">The rhythm</a>
       </nav>
       <button id="receipt-open" class="button small">
         Your receipt <span aria-hidden="true">▤</span>
@@ -46,308 +46,356 @@
       </section>
       <div id="loading" role="status">Tuning into the archive…</div>
       <div id="app" hidden>
-        <section
-          id="then-now"
-          class="origins-section"
-          aria-labelledby="origins-heading"
+        <div
+          id="view-tabs"
+          class="view-tabs"
+          role="tablist"
+          aria-label="Listening history views"
         >
-          <div class="section-top">
-            <div>
-              <p class="eyebrow">
-                <span class="section-number">01</span> BACK TO THE BEGINNING
-              </p>
-              <h2 id="origins-heading">Same ears. <em>Different eras.</em></h2>
+          <button
+            id="atlas-tab"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="atlas-panel"
+            tabindex="0"
+            data-view="atlas"
+          >
+            Listening atlas
+          </button>
+          <button
+            id="then-now-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="then-now-panel"
+            tabindex="-1"
+            data-view="then-now"
+          >
+            Then &amp; now
+          </button>
+        </div>
+        <div
+          id="atlas-panel"
+          role="tabpanel"
+          aria-labelledby="atlas-tab"
+          tabindex="0"
+        >
+          <div class="controls">
+            <div id="years" class="year-tabs" aria-label="Choose a year"></div>
+            <div class="metric-toggle" aria-label="Chart metric">
+              <button data-metric="ms" class="active" aria-pressed="true">
+                Listening time</button
+              ><button data-metric="plays" aria-pressed="false">Plays</button>
             </div>
-            <div class="comparison-controls">
-              <span>Compare your first & latest</span>
-              <div class="window-tabs" aria-label="Comparison window">
-                <button data-window="30" aria-pressed="false">30 days</button
-                ><button data-window="90" class="active" aria-pressed="true">
-                  90 days</button
-                ><button data-window="365" aria-pressed="false">
-                  365 days
+          </div>
+          <div class="stats" aria-live="polite">
+            <div>
+              <span class="stat-label">TIME WELL SPENT</span
+              ><strong id="stat-hours"></strong
+              ><span class="stat-unit">hours of music</span>
+            </div>
+            <div>
+              <span class="stat-label">PRESSING PLAY</span
+              ><strong id="stat-plays"></strong
+              ><span class="stat-unit">listens · 30 seconds or more</span>
+            </div>
+            <div>
+              <span class="stat-label">IN GOOD COMPANY</span
+              ><strong id="stat-artists"></strong
+              ><span class="stat-unit">different artists</span>
+            </div>
+            <div>
+              <span class="stat-label">FOUND YOUR FREQUENCY</span
+              ><strong id="stat-tracks"></strong
+              ><span class="stat-unit">unique tracks</span>
+            </div>
+          </div>
+          <section id="flow" class="flow-section">
+            <div class="section-top">
+              <div>
+                <p class="eyebrow">
+                  <span class="section-number">01</span> YOUR TASTE, IN MOTION
+                </p>
+                <h2>The listening river.</h2>
+              </div>
+              <div class="flow-meta">
+                <span id="flow-note"
+                  >Every color is an artist. Every curve is a chapter.</span
+                >
+                <div class="view-toggle">
+                  <button data-mode="flow" class="active" aria-pressed="true">
+                    Flow</button
+                  ><button data-mode="stack" aria-pressed="false">Stack</button>
+                </div>
+              </div>
+            </div>
+            <div class="chart-shell">
+              <svg
+                id="river"
+                role="group"
+                aria-label="Monthly listening time by artist"
+              ></svg>
+              <div class="chart-watermark" aria-hidden="true">
+                SOUND IN<br />MOTION.
+              </div>
+              <div id="river-empty" hidden>
+                No listening data for this period.
+              </div>
+            </div>
+            <div class="chart-foot">
+              <span>JAN <span id="first-year"></span></span
+              ><span class="chart-hint"
+                >Hover to explore · select an artist to dive in</span
+              ><span id="end-label"></span>
+            </div>
+            <div id="legend" class="legend"></div>
+            <div id="month-insight" class="insight">
+              <span aria-hidden="true">✳</span>
+              <p></p>
+            </div>
+          </section>
+          <section id="favorites" class="favorites-section">
+            <div class="section-top">
+              <div>
+                <p class="eyebrow">
+                  <span class="section-number">02</span> THE HEAVY ROTATION
+                </p>
+                <h2>Some things just stick.</h2>
+              </div>
+              <span id="period-label" class="period-chip"></span>
+            </div>
+            <div class="favorites-grid">
+              <div class="artist-panel">
+                <div class="panel-heading">
+                  <h3>The regulars</h3>
+                  <span>TOP ARTISTS</span>
+                </div>
+                <div id="artists"></div>
+                <button id="clear-artist" class="text-button" hidden>
+                  Clear artist selection ×
+                </button>
+              </div>
+              <div class="tracks-panel">
+                <div class="panel-heading">
+                  <h3 id="tracks-heading">Forever on repeat</h3>
+                  <span>TOP TRACKS</span>
+                </div>
+                <label class="search"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="10" cy="10" r="6" />
+                    <path d="m15 15 5 5" /></svg
+                  ><input
+                    id="track-search"
+                    type="search"
+                    placeholder="Find a song or artist"
+                    aria-label="Find a song or artist"
+                /></label>
+                <div id="tracks" aria-live="polite"></div>
+                <button id="more-tracks" class="text-button">
+                  Show more tracks +
                 </button>
               </div>
             </div>
-          </div>
-          <p class="origins-context">
-            Your earliest recorded listening versus the end of this export.
-            Equal windows, different soundtracks.
-          </p>
-          <p id="origins-loading" role="status">Opening the time capsule…</p>
-          <div id="origins-content" hidden>
-            <div class="first-day">
+          </section>
+          <section id="rhythm" class="rhythm-section">
+            <div class="section-top">
               <div>
-                <span class="tiny-label">THE FIRST DAY ON RECORD</span
-                ><strong id="first-day-date"></strong
-                ><small>Not necessarily your Spotify signup date.</small>
+                <p class="eyebrow">
+                  <span class="section-number">03</span> YOUR INNER METRONOME
+                </p>
+                <h2>A rhythm of your own.</h2>
               </div>
-              <div>
-                <span class="tiny-label">MOST-PLAYED THAT DAY</span>
-                <div id="first-day-tracks"></div>
-              </div>
+              <span class="muted">All hours and dates in UTC</span>
             </div>
-            <div id="era-cards" class="era-cards" aria-live="polite"></div>
-            <div class="comparison-insight">
-              <span aria-hidden="true">↻</span>
-              <p id="comparison-insight"></p>
-            </div>
-            <div class="comparison-details">
-              <div class="artist-shifts">
+            <div class="rhythm-grid">
+              <div class="clock-panel">
                 <div class="panel-heading">
-                  <h3>Who took up more space?</h3>
-                  <div class="era-key">
-                    <span><i class="then-dot"></i>Then</span
-                    ><span><i class="now-dot"></i>Now</span>
-                  </div>
+                  <h3>Round the clock</h3>
+                  <span>24 HOURS</span>
                 </div>
-                <p class="comparison-caption">
-                  Share of all plays, so a busier listening habit doesn’t skew
-                  the comparison.
-                </p>
-                <div id="artist-shifts"></div>
-                <p class="comparison-footnote">
-                  Biggest shifts among the top five artists from either period.
-                  Endpoints show each artist’s share.
-                </p>
+                <svg
+                  id="clock"
+                  role="group"
+                  aria-label="Listening distribution across 24 hours in UTC"
+                ></svg>
+                <p id="clock-caption" class="chart-caption"></p>
               </div>
-              <div class="stayed-panel">
-                <p class="eyebrow">A LITTLE OF THE OLD YOU</p>
-                <h3>Still in the rotation.</h3>
-                <div class="return-number">
-                  <strong id="return-share"></strong
-                  ><span id="return-label"></span>
+              <div class="calendar-panel">
+                <div class="panel-heading">
+                  <h3 id="calendar-title">Days with a soundtrack</h3>
+                  <label class="calendar-picker"
+                    >Calendar
+                    <select
+                      id="calendar-year"
+                      aria-label="Calendar year"
+                    ></select
+                  ></label>
                 </div>
-                <div id="return-bar" class="return-bar" role="img"></div>
-                <p id="return-caption" class="comparison-caption"></p>
-                <div id="return-tracks"></div>
+                <div class="calendar-scroll">
+                  <svg
+                    id="calendar"
+                    role="group"
+                    aria-label="Daily listening heatmap. Use arrow keys to move between dates."
+                  ></svg>
+                </div>
+                <div class="calendar-key">
+                  <span>Silence</span><i></i><i></i><i></i><i></i><i></i
+                  ><span>On repeat</span>
+                </div>
+                <p id="calendar-caption" class="chart-caption"></p>
+                <div class="weekdays-heading">
+                  <span class="tiny-label">THE WEEKLY GROOVE</span
+                  ><span class="muted">Share of selected listening</span>
+                </div>
+                <div id="weekdays" class="weekdays"></div>
               </div>
             </div>
-            <div class="memory-panel">
-              <div class="memory-header">
+          </section>
+          <section class="outro">
+            <button class="button lime" id="receipt-open-bottom">
+              Make my receipt <span aria-hidden="true">▤</span>
+            </button>
+          </section>
+        </div>
+        <div
+          id="then-now-panel"
+          role="tabpanel"
+          aria-labelledby="then-now-tab"
+          tabindex="0"
+          hidden
+        >
+          <section
+            id="then-now"
+            class="origins-section"
+            aria-labelledby="origins-heading"
+          >
+            <div class="section-top">
+              <div>
+                <p class="eyebrow">
+                  <span class="section-number">01</span> BACK TO THE BEGINNING
+                </p>
+                <h2 id="origins-heading">
+                  Same ears. <em>Different eras.</em>
+                </h2>
+              </div>
+              <div class="comparison-controls">
+                <span>Compare your first & latest</span>
+                <div class="window-tabs" aria-label="Comparison window">
+                  <button data-window="30" aria-pressed="false">30 days</button
+                  ><button data-window="90" class="active" aria-pressed="true">
+                    90 days</button
+                  ><button data-window="365" aria-pressed="false">
+                    365 days
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="origins-context">
+              Your earliest recorded listening versus the end of this export.
+              Equal windows, different soundtracks.
+            </p>
+            <p id="origins-loading" role="status">Opening the time capsule…</p>
+            <div id="origins-content" hidden>
+              <div class="first-day">
                 <div>
-                  <p class="eyebrow">FOLLOW AN OLD FAVORITE</p>
-                  <h3>
-                    A song can disappear.<br /><em>And find its way back.</em>
-                  </h3>
+                  <span class="tiny-label">THE FIRST DAY ON RECORD</span
+                  ><strong id="first-day-date"></strong
+                  ><small>Not necessarily your Spotify signup date.</small>
                 </div>
-                <label class="memory-picker"
-                  >Choose an early favorite<select
-                    id="memory-song"
-                    aria-label="Choose an early favorite"
-                  ></select
-                ></label>
+                <div>
+                  <span class="tiny-label">MOST-PLAYED THAT DAY</span>
+                  <div id="first-day-tracks"></div>
+                </div>
               </div>
-              <div class="memory-summary">
-                <a id="memory-link" target="_blank" rel="noreferrer"></a
-                ><span id="memory-compare"></span>
+              <div id="era-cards" class="era-cards" aria-live="polite"></div>
+              <div class="comparison-insight">
+                <span aria-hidden="true">↻</span>
+                <p id="comparison-insight"></p>
               </div>
-              <div class="memory-chart-shell">
-                <svg
-                  id="memory-chart"
-                  role="group"
-                  aria-label="Monthly plays of the selected early favorite"
-                ></svg>
+              <div class="comparison-details">
+                <div class="artist-shifts">
+                  <div class="panel-heading">
+                    <h3>Who took up more space?</h3>
+                    <div class="era-key">
+                      <span><i class="then-dot"></i>Then</span
+                      ><span><i class="now-dot"></i>Now</span>
+                    </div>
+                  </div>
+                  <p class="comparison-caption">
+                    Share of all plays, so a busier listening habit doesn’t skew
+                    the comparison.
+                  </p>
+                  <div id="artist-shifts"></div>
+                  <p class="comparison-footnote">
+                    Biggest shifts among the top five artists from either
+                    period. Endpoints show each artist’s share.
+                  </p>
+                </div>
+                <div class="stayed-panel">
+                  <p class="eyebrow">A LITTLE OF THE OLD YOU</p>
+                  <h3>Still in the rotation.</h3>
+                  <div class="return-number">
+                    <strong id="return-share"></strong
+                    ><span id="return-label"></span>
+                  </div>
+                  <div id="return-bar" class="return-bar" role="img"></div>
+                  <p id="return-caption" class="comparison-caption"></p>
+                  <div id="return-tracks"></div>
+                </div>
               </div>
-              <div class="memory-axis-caption">
-                <span>MONTHLY PLAYS · FULL ARCHIVE</span
-                ><span>Lime marks peak months. Lilac shows the rest.</span>
+              <div class="memory-panel">
+                <div class="memory-header">
+                  <div>
+                    <p class="eyebrow">FOLLOW AN OLD FAVORITE</p>
+                    <h3>
+                      A song can disappear.<br /><em>And find its way back.</em>
+                    </h3>
+                  </div>
+                  <label class="memory-picker"
+                    >Choose an early favorite<select
+                      id="memory-song"
+                      aria-label="Choose an early favorite"
+                    ></select
+                  ></label>
+                </div>
+                <div class="memory-summary">
+                  <a id="memory-link" target="_blank" rel="noreferrer"></a
+                  ><span id="memory-compare"></span>
+                </div>
+                <div class="memory-chart-shell">
+                  <svg
+                    id="memory-chart"
+                    role="group"
+                    aria-label="Monthly plays of the selected early favorite"
+                  ></svg>
+                </div>
+                <div class="memory-axis-caption">
+                  <span>MONTHLY PLAYS · FULL ARCHIVE</span
+                  ><span>Lime marks peak months. Lilac shows the rest.</span>
+                </div>
+                <p
+                  id="memory-caption"
+                  class="chart-caption"
+                  aria-live="polite"
+                ></p>
               </div>
-              <p
-                id="memory-caption"
-                class="chart-caption"
-                aria-live="polite"
-              ></p>
+              <details class="comparison-method">
+                <summary>How this comparison works</summary>
+                <p id="comparison-method"></p>
+                <p>
+                  All periods include every calendar day, even days without
+                  music. Plays must last at least 30 seconds; private-session
+                  plays are excluded. Songs with the same artist and exact title
+                  are combined across Spotify IDs. Distinct remix or live titles
+                  stay separate. “Still in rotation” means heard in both
+                  compared windows; songs absent from the first window are not
+                  necessarily new discoveries. Dates use UTC.
+                </p>
+              </details>
             </div>
-            <details class="comparison-method">
-              <summary>How this comparison works</summary>
-              <p id="comparison-method"></p>
-              <p>
-                All periods include every calendar day, even days without music.
-                Plays must last at least 30 seconds; private-session plays are
-                excluded. Songs with the same artist and exact title are
-                combined across Spotify IDs. Distinct remix or live titles stay
-                separate. “Still in rotation” means heard in both compared
-                windows; songs absent from the first window are not necessarily
-                new discoveries. Dates use UTC.
-              </p>
-            </details>
-          </div>
-        </section>
-
-        <div class="controls">
-          <div id="years" class="year-tabs" aria-label="Choose a year"></div>
-          <div class="metric-toggle" aria-label="Chart metric">
-            <button data-metric="ms" class="active" aria-pressed="true">
-              Listening time</button
-            ><button data-metric="plays" aria-pressed="false">Plays</button>
-          </div>
+          </section>
         </div>
-        <div class="stats" aria-live="polite">
-          <div>
-            <span class="stat-label">TIME WELL SPENT</span
-            ><strong id="stat-hours"></strong
-            ><span class="stat-unit">hours of music</span>
-          </div>
-          <div>
-            <span class="stat-label">PRESSING PLAY</span
-            ><strong id="stat-plays"></strong
-            ><span class="stat-unit">listens · 30 seconds or more</span>
-          </div>
-          <div>
-            <span class="stat-label">IN GOOD COMPANY</span
-            ><strong id="stat-artists"></strong
-            ><span class="stat-unit">different artists</span>
-          </div>
-          <div>
-            <span class="stat-label">FOUND YOUR FREQUENCY</span
-            ><strong id="stat-tracks"></strong
-            ><span class="stat-unit">unique tracks</span>
-          </div>
-        </div>
-        <section id="flow" class="flow-section">
-          <div class="section-top">
-            <div>
-              <p class="eyebrow">
-                <span class="section-number">02</span> YOUR TASTE, IN MOTION
-              </p>
-              <h2>The listening river.</h2>
-            </div>
-            <div class="flow-meta">
-              <span id="flow-note"
-                >Every color is an artist. Every curve is a chapter.</span
-              >
-              <div class="view-toggle">
-                <button data-mode="flow" class="active" aria-pressed="true">
-                  Flow</button
-                ><button data-mode="stack" aria-pressed="false">Stack</button>
-              </div>
-            </div>
-          </div>
-          <div class="chart-shell">
-            <svg
-              id="river"
-              role="group"
-              aria-label="Monthly listening time by artist"
-            ></svg>
-            <div class="chart-watermark" aria-hidden="true">
-              SOUND IN<br />MOTION.
-            </div>
-            <div id="river-empty" hidden>
-              No listening data for this period.
-            </div>
-          </div>
-          <div class="chart-foot">
-            <span>JAN <span id="first-year"></span></span
-            ><span class="chart-hint"
-              >Hover to explore · select an artist to dive in</span
-            ><span id="end-label"></span>
-          </div>
-          <div id="legend" class="legend"></div>
-          <div id="month-insight" class="insight">
-            <span aria-hidden="true">✳</span>
-            <p></p>
-          </div>
-        </section>
-        <section id="favorites" class="favorites-section">
-          <div class="section-top">
-            <div>
-              <p class="eyebrow">
-                <span class="section-number">03</span> THE HEAVY ROTATION
-              </p>
-              <h2>Some things just stick.</h2>
-            </div>
-            <span id="period-label" class="period-chip"></span>
-          </div>
-          <div class="favorites-grid">
-            <div class="artist-panel">
-              <div class="panel-heading">
-                <h3>The regulars</h3>
-                <span>TOP ARTISTS</span>
-              </div>
-              <div id="artists"></div>
-              <button id="clear-artist" class="text-button" hidden>
-                Clear artist selection ×
-              </button>
-            </div>
-            <div class="tracks-panel">
-              <div class="panel-heading">
-                <h3 id="tracks-heading">Forever on repeat</h3>
-                <span>TOP TRACKS</span>
-              </div>
-              <label class="search"
-                ><svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10" cy="10" r="6" />
-                  <path d="m15 15 5 5" /></svg
-                ><input
-                  id="track-search"
-                  type="search"
-                  placeholder="Find a song or artist"
-                  aria-label="Find a song or artist"
-              /></label>
-              <div id="tracks" aria-live="polite"></div>
-              <button id="more-tracks" class="text-button">
-                Show more tracks +
-              </button>
-            </div>
-          </div>
-        </section>
-        <section id="rhythm" class="rhythm-section">
-          <div class="section-top">
-            <div>
-              <p class="eyebrow">
-                <span class="section-number">04</span> YOUR INNER METRONOME
-              </p>
-              <h2>A rhythm of your own.</h2>
-            </div>
-            <span class="muted">All hours and dates in UTC</span>
-          </div>
-          <div class="rhythm-grid">
-            <div class="clock-panel">
-              <div class="panel-heading">
-                <h3>Round the clock</h3>
-                <span>24 HOURS</span>
-              </div>
-              <svg
-                id="clock"
-                role="group"
-                aria-label="Listening distribution across 24 hours in UTC"
-              ></svg>
-              <p id="clock-caption" class="chart-caption"></p>
-            </div>
-            <div class="calendar-panel">
-              <div class="panel-heading">
-                <h3 id="calendar-title">Days with a soundtrack</h3>
-                <label class="calendar-picker"
-                  >Calendar
-                  <select id="calendar-year" aria-label="Calendar year"></select
-                ></label>
-              </div>
-              <div class="calendar-scroll">
-                <svg
-                  id="calendar"
-                  role="group"
-                  aria-label="Daily listening heatmap. Use arrow keys to move between dates."
-                ></svg>
-              </div>
-              <div class="calendar-key">
-                <span>Silence</span><i></i><i></i><i></i><i></i><i></i
-                ><span>On repeat</span>
-              </div>
-              <p id="calendar-caption" class="chart-caption"></p>
-              <div class="weekdays-heading">
-                <span class="tiny-label">THE WEEKLY GROOVE</span
-                ><span class="muted">Share of selected listening</span>
-              </div>
-              <div id="weekdays" class="weekdays"></div>
-            </div>
-          </div>
-        </section>
-        <section class="outro">
-          <button class="button lime" id="receipt-open-bottom">
-            Make my receipt <span aria-hidden="true">▤</span>
-          </button>
-        </section>
         <details class="about">
           <summary>
             Behind the music <span>Method, privacy & inspiration</span>

@@ -22,6 +22,12 @@ A qualified listen is an audio music record with a valid Spotify track ID, lasti
 
 The river shows the ten leading artists in the selected period by default. “Include other artists” adds the rest of the collection as one group. Layer thickness encodes the selected metric. Curves interpolate monthly observations; tooltips report actual month totals. Calendar intensity is scaled within its chosen year. The receipt always ranks by play count, regardless of the chart metric or artist selection.
 
+## Website tabs
+
+The default **Listening atlas** tab contains year filters, the artist river, rankings, and listening rhythms. **Then & now** contains the first-day archive, equal-window comparisons, artist-share changes, returning songs, and old-favorite timelines. Switching tabs preserves both sets of selections. Tabs support keyboard arrows, Home/End, and browser Back/Forward.
+
+`#then-now` opens the comparison tab directly; `#atlas` opens the main tab. Existing `#flow`, `#favorites`, and `#rhythm` links open their sections in the main tab.
+
 ## Then & now
 
 The comparison uses inclusive UTC calendar windows beginning on the first qualifying date (April 20, 2020) and ending on the latest qualifying date (September 23, 2026). The dates do not establish account creation or current live activity. The first-day panel shows the most-played songs on the earliest recorded day, not a chronological playback sequence.

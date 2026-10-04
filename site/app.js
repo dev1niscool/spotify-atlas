@@ -626,6 +626,61 @@ function saveReceipt() {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+function initViews() {
+  const tabs = [...document.querySelectorAll("[data-view]")];
+  const atlas = $("#atlas-panel");
+  const comparison = $("#then-now-panel");
+
+  function syncView(scroll = false) {
+    const fragment = location.hash.slice(1);
+    const target = document.getElementById(fragment);
+    const isComparison =
+      fragment === "then-now" || (target && comparison.contains(target));
+    atlas.hidden = Boolean(isComparison);
+    comparison.hidden = !isComparison;
+    $("#atlas-section-nav").hidden = Boolean(isComparison);
+    tabs.forEach((tab) => {
+      const selected =
+        (tab.dataset.view === "then-now") === Boolean(isComparison);
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    hideTooltip();
+    if (isComparison) window.Origins.refresh();
+    else renderRiver();
+    if (scroll) {
+      const destination = ["atlas", "then-now"].includes(fragment)
+        ? $("#view-tabs")
+        : target;
+      destination?.scrollIntoView({ behavior: "instant", block: "start" });
+    }
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => {
+      const hash = "#" + tab.dataset.view;
+      if (location.hash !== hash) window.history.pushState(null, "", hash);
+      syncView(true);
+    });
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key))
+        return;
+      event.preventDefault();
+      const next =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? tabs.length - 1
+            : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+              tabs.length;
+      tabs[next].click();
+      tabs[next].focus();
+    });
+  });
+  window.addEventListener("hashchange", () => syncView(true));
+  syncView(Boolean(location.hash));
+}
+
 async function init() {
   try {
     const res = await fetch("data/history.json");
@@ -698,6 +753,7 @@ async function init() {
     $("#loading").hidden = true;
     $("#app").hidden = false;
     render();
+    initViews();
     window.Origins.init(data);
     let resizeTimer;
     window.addEventListener("resize", () => {

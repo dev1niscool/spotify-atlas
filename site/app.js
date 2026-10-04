@@ -698,6 +698,7 @@ async function init() {
     $("#loading").hidden = true;
     $("#app").hidden = false;
     render();
+    window.Origins.init(data);
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);

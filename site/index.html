@@ -10,10 +10,10 @@
     />
     <title>On Repeat — Devin’s listening atlas</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=db84711ea267" />
+    <link rel="stylesheet" href="style.css?v=d99c193861b9" />
     <script src="vendor/d3.min.js" defer></script>
     <script src="comparison.js?v=59d546c41fb0" defer></script>
-    <script src="app.js?v=6169a6a706fb" defer></script>
+    <script src="app.js?v=0a988778579f" defer></script>
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to listening atlas</a>
@@ -206,7 +206,25 @@
                 </p>
                 <h2>A rhythm of your own.</h2>
               </div>
-              <span class="muted">All hours and dates in UTC</span>
+              <div class="timezone-controls">
+                <label class="timezone-picker" for="rhythm-timezone"
+                  >Time zone
+                  <select
+                    id="rhythm-timezone"
+                    aria-label="Time zone"
+                    aria-describedby="timezone-note"
+                  >
+                    <option value="America/Chicago" selected>
+                      Central Time
+                    </option>
+                    <option value="America/New_York">Eastern Time</option>
+                  </select>
+                </label>
+                <span id="timezone-note"
+                  >Clock, calendar &amp; weekdays · adjusts for daylight
+                  saving</span
+                >
+              </div>
             </div>
             <div class="rhythm-grid">
               <div class="clock-panel">
@@ -217,7 +235,7 @@
                 <svg
                   id="clock"
                   role="group"
-                  aria-label="Listening distribution across 24 hours in UTC"
+                  aria-label="Listening distribution across 24 hours in Central Time"
                 ></svg>
                 <p id="clock-caption" class="chart-caption"></p>
               </div>
@@ -428,8 +446,11 @@
                 in this export. No analytics, cookies, or Spotify login.
               </p>
               <p>
-                The listening clock and calendar use UTC, the export’s time
-                basis. They do not reveal a location or infer a home time zone.
+                The listening clock, calendar, and weekday chart default to
+                Central Time, with Eastern Time available in the dropdown. Both
+                adjust for daylight saving time. Their dates and year filters
+                use the selected zone; other charts and Then &amp; now use UTC,
+                the export’s time basis.
               </p>
             </div>
             <div>

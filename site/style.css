@@ -637,12 +637,14 @@ main {
 .calendar-panel {
   min-width: 0;
 }
-.calendar-picker {
+.calendar-picker,
+.timezone-picker {
   font-size: 11px;
   color: #8f9d7e;
   white-space: nowrap;
 }
-.calendar-picker select {
+.calendar-picker select,
+.timezone-picker select {
   margin-left: 8px;
   color: #dce8cb;
   background: #242e1a;
@@ -650,6 +652,19 @@ main {
   padding: 5px 8px;
   border-radius: 5px;
   font-size: 12px;
+}
+.timezone-controls {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+.timezone-picker select {
+  min-height: 40px;
+  font-size: 13px;
+}
+#timezone-note {
+  color: #8f9d7e;
+  font-size: 10px;
 }
 .calendar-scroll {
   overflow: auto;
@@ -1215,12 +1230,15 @@ section {
   }
   .rhythm-section .section-top {
     align-items: start;
+    flex-direction: column;
+    gap: 16px;
   }
-  .rhythm-section .section-top > .muted {
-    font-size: 9px;
-    max-width: 75px;
-    text-align: right;
-    padding-top: 5px;
+  .timezone-controls {
+    justify-items: start;
+  }
+  #timezone-note {
+    max-width: 260px;
+    line-height: 1.5;
   }
   .outro {
     align-items: start;

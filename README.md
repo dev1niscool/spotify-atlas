@@ -2,7 +2,7 @@
 
 [Open the listening atlas](https://dev1niscool.github.io/spotify-atlas/)
 
-An interactive portrait of music listening from April 2020 to September 2026. A flowing artist timeline, year filters, top artists and searchable tracks, a daily calendar, a UTC listening clock, and a downloadable listening receipt. The “Then & now” time capsule compares equal 30-, 90-, and 365-day windows from the beginning and end of the export, with normalized artist shares and a monthly timeline for early favorites.
+An interactive portrait of music listening from April 2020 to September 2026. A flowing artist timeline, year filters, top artists and searchable tracks, a daily calendar, a timezone-selectable listening clock, and a downloadable listening receipt. The “Then & now” time capsule compares equal 30-, 90-, and 365-day windows from the beginning and end of the export, with normalized artist shares and a monthly timeline for early favorites.
 
 ## Run locally
 
@@ -16,7 +16,7 @@ Open http://localhost:8765. The site is static HTML, CSS, and JavaScript. D3 7.9
 
 The original Spotify exports are **not included** in this repository or the deployment. The public JSON is generated using an explicit allowlist. It retains Devin’s first name, public artist/track/album metadata and Spotify track IDs, monthly artist/track totals, daily totals, and annual hour/weekday aggregates. No individual listening-event rows are published.
 
-Account details, IP addresses, countries, devices, exact timestamps, private-session plays, video files, and nonmusic records are excluded. No playlist records were present. Daily/hourly patterns remain publicly visible as aggregates. All dates and hours use UTC; no home location or time zone is inferred.
+Account details, IP addresses, countries, devices, exact timestamps, private-session plays, video files, and nonmusic records are excluded. No playlist records were present. Daily/hourly patterns remain publicly visible as aggregates. The listening clock, daily calendar, and weekday chart default to Central Time (`America/Chicago`), with Eastern Time (`America/New_York`) available in a dropdown. Each uses historical daylight-saving rules and local date/year boundaries. The selection applies to these three charts; monthly rankings, archive summary statistics, and Then & now continue to use UTC. No location is inferred from listening records.
 
 A qualified listen is an audio music record with a valid Spotify track ID, lasting at least 30 seconds, outside a private session. Listening time sums reported durations of qualifying records only. Short skips do not count. Track versions with different Spotify IDs are separate tracks. Partial first/last years and missing days reflect the export, not inferred activity.
 
@@ -49,9 +49,16 @@ Keep the source directory outside the repository. By default, the builder reads 
 ```sh
 python3 scripts/build_data.py
 python3 scripts/build_comparison.py
+python3 scripts/build_timezones.py
 python3 scripts/verify_data.py
 python3 scripts/verify_comparison.py
+python3 scripts/verify_timezones.py
+python3 scripts/test_timezones.py
 ```
+
+The timezone dataset adds only date, hour, and weekday aggregates for each supported zone. It is generated from qualifying source timestamps before aggregation, including midnight and daylight-saving changes, rather than shifting UTC totals.
+
+Run `python3 scripts/verify_timezones.py --source '../Spotify Extended Streaming History'` to independently reconcile timezone aggregates with the private exports. Boundary tests cover spring-forward gaps, fall-back repeated hours, and local midnight/year changes.
 
 The auditor checks an exact schema, private identifiers, catalog indices, valid dates, and consistent totals across monthly, daily, and rhythm aggregates. The GitHub Pages workflow audits the public JSON before deploying only the `site` directory. Raw source files are not needed by the workflow.
 

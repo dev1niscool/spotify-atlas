@@ -13,6 +13,8 @@ const palette = [
   "#c3c5b3",
 ];
 let data,
+  timezoneData,
+  rhythmZone,
   selectedYear = "all",
   metric = "ms",
   chartMode = "flow",
@@ -373,7 +375,7 @@ function renderTracks() {
 function renderRhythm() {
   const hours = Array.from({ length: 24 }, () => [0, 0]),
     days = Array.from({ length: 7 }, () => [0, 0]);
-  for (const r of data.rhythms.filter(
+  for (const r of rhythmZone.rhythms.filter(
     (r) => selectedYear === "all" || String(r.year) === selectedYear,
   )) {
     r.hours.forEach((v, i) => {
@@ -391,7 +393,12 @@ function renderRhythm() {
     peak = values.indexOf(Math.max(...values));
   const svg = d3.select("#clock");
   svg.selectAll("*").remove();
-  svg.attr("viewBox", "0 0 320 320");
+  svg
+    .attr("viewBox", "0 0 320 320")
+    .attr(
+      "aria-label",
+      `Listening distribution across 24 hours in ${rhythmZone.label}`,
+    );
   const g = svg.append("g").attr("transform", "translate(160,160)");
   [78, 105, 133].forEach((r) =>
     g
@@ -416,12 +423,15 @@ function renderRhythm() {
     .attr("d", arc)
     .attr("tabindex", 0)
     .attr("role", "img")
-    .attr("aria-label", (d) => `${d}:00 UTC: ${units(values[d])}`)
+    .attr(
+      "aria-label",
+      (d) => `${d}:00 ${rhythmZone.shortLabel}: ${units(values[d])}`,
+    )
     .on("focus", (e, d) => {
       const b = e.target.getBoundingClientRect();
       tooltip(
         { clientX: b.x, clientY: b.y },
-        `<strong>${String(d).padStart(2, "0")}:00 UTC</strong>${units(values[d])}`,
+        `<strong>${String(d).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
       );
     })
     .on("blur", hideTooltip)
@@ -430,12 +440,12 @@ function renderRhythm() {
     .on("pointermove", (e, d) =>
       tooltip(
         e,
-        `<strong>${String(d).padStart(2, "0")}:00–${String((d + 1) % 24).padStart(2, "0")}:00 UTC</strong>${units(values[d])}`,
+        `<strong>${String(d).padStart(2, "0")}:00–${String((d + 1) % 24).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
       ),
     )
     .on("pointerleave", hideTooltip)
     .append("title")
-    .text((d) => `${d}:00 UTC: ${units(values[d])}`);
+    .text((d) => `${d}:00 ${rhythmZone.shortLabel}: ${units(values[d])}`);
   [
     [0, "00"],
     [6, "06"],
@@ -460,9 +470,9 @@ function renderRhythm() {
     .attr("y", 16)
     .style("font-size", "9px")
     .style("letter-spacing", "2px")
-    .text("PEAK HOUR · UTC");
+    .text(`PEAK HOUR · ${rhythmZone.shortLabel}`);
   $("#clock-caption").innerHTML =
-    `The music peaks at <strong>${String(peak).padStart(2, "0")}:00 UTC</strong>. Each wedge adds up that hour across ${selectedYear === "all" ? "the whole archive" : selectedYear}.`;
+    `The music peaks at <strong>${String(peak).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>. Each wedge adds up that hour across ${selectedYear === "all" ? "the whole archive" : selectedYear}.`;
   const dmax = Math.max(...days.map((d) => d[idx]), 1),
     total = days.reduce((s, d) => s + d[idx], 0),
     dp = days.findIndex((d) => d[idx] === dmax),
@@ -472,13 +482,13 @@ function renderRhythm() {
   $("#weekdays").innerHTML = days
     .map(
       (v, i) =>
-        `<div class="weekday ${i === dp ? "peak" : ""}" title="${data.meta.weekdayOrder[i]}: ${units(v[idx])}, ${n((v[idx] / Math.max(total, 1)) * 100)}%"><i style="--height:${(v[idx] / dmax) * 62}px"></i><span>${labels[i]}</span></div>`,
+        `<div class="weekday ${i === dp ? "peak" : ""}" title="${data.meta.weekdayOrder[i]} (${rhythmZone.shortLabel}): ${units(v[idx])}, ${n((v[idx] / Math.max(total, 1)) * 100)}%"><i style="--height:${(v[idx] / dmax) * 62}px"></i><span>${labels[i]}</span></div>`,
     )
     .join("");
 }
 function renderCalendar() {
   const year = Number($("#calendar-year").value),
-    source = data.days.filter((d) => d[0].startsWith(String(year))),
+    source = rhythmZone.days.filter((d) => d[0].startsWith(String(year))),
     map = new Map(source.map((d) => [d[0], d])),
     idx = metric === "ms" ? 2 : 1,
     max = Math.max(...source.map((d) => d[idx]), 1),
@@ -498,7 +508,7 @@ function renderCalendar() {
     .attr("viewBox", `0 0 ${W} ${H}`)
     .attr(
       "aria-label",
-      `Daily listening calendar for ${year}, in UTC. Use arrow keys to move between dates`,
+      `Daily listening calendar for ${year}, in ${rhythmZone.label}. Use arrow keys to move between dates`,
     );
   const scale = d3.scaleSqrt().domain([0, max]).range(["#304320", "#dff893"]);
   ["S", "M", "T", "W", "T", "F", "S"].forEach((d, i) =>
@@ -527,7 +537,7 @@ function renderCalendar() {
     const date = new Date(+first + i * 86400000).toISOString().slice(0, 10),
       record = map.get(date),
       v = record?.[idx] || 0,
-      within = date >= data.meta.period.start && date <= data.meta.period.end;
+      within = date >= rhythmZone.period.start && date <= rhythmZone.period.end;
     svg
       .append("rect")
       .attr("x", x0 + Math.floor((i + offset) / 7) * cell)
@@ -542,13 +552,13 @@ function renderCalendar() {
       .attr("role", "img")
       .attr(
         "aria-label",
-        `${date}: ${within ? units(v) : "outside export period"}`,
+        `${date} ${rhythmZone.shortLabel}: ${within ? units(v) : "outside export period"}`,
       )
       .on("focus", (e) => {
         const b = e.target.getBoundingClientRect();
         tooltip(
           { clientX: b.x, clientY: b.y },
-          `<strong>${fullDate(date)}</strong>${within ? units(v) : "Outside the export period"}`,
+          `<strong>${fullDate(date)} · ${rhythmZone.shortLabel}</strong>${within ? units(v) : "Outside the export period"}`,
         );
       })
       .on("blur", hideTooltip)
@@ -571,12 +581,14 @@ function renderCalendar() {
       .on("pointermove", (e) =>
         tooltip(
           e,
-          `<strong>${fullDate(date)}</strong>${within ? units(v) : "Outside the export period"}`,
+          `<strong>${fullDate(date)} · ${rhythmZone.shortLabel}</strong>${within ? units(v) : "Outside the export period"}`,
         ),
       )
       .on("pointerleave", hideTooltip)
       .append("title")
-      .text(`${date}: ${within ? units(v) : "outside export period"}`);
+      .text(
+        `${date} ${rhythmZone.shortLabel}: ${within ? units(v) : "outside export period"}`,
+      );
   }
   const peak = source.reduce(
     (a, b) => (b[idx] > (a?.[idx] || 0) ? b : a),
@@ -585,6 +597,16 @@ function renderCalendar() {
   $("#calendar-caption").innerHTML = peak
     ? `<strong>${n(source.length)} days</strong> with music in ${year}. The loudest square: <strong>${fullDate(peak[0])}</strong>, with ${units(peak[idx])}.`
     : "No qualifying listens in this year.";
+}
+function updateCalendarYears() {
+  const picker = $("#calendar-year"),
+    previous = Number(picker.value);
+  picker.innerHTML = rhythmZone.years
+    .map((y) => `<option value="${y}">${y}</option>`)
+    .join("");
+  picker.value = rhythmZone.years.includes(previous)
+    ? previous
+    : rhythmZone.years.at(-1);
 }
 function receiptData() {
   return [...current.tracks].sort((a, b) => b.plays - a.plays).slice(0, 10);
@@ -683,9 +705,28 @@ function initViews() {
 
 async function init() {
   try {
-    const res = await fetch("data/history.json");
-    if (!res.ok) throw new Error("Unable to load listening data");
-    data = await res.json();
+    const responses = await Promise.all([
+      fetch("data/history.json"),
+      fetch("data/timezones.json"),
+    ]);
+    if (responses.some((res) => !res.ok))
+      throw new Error("Unable to load listening data");
+    [data, timezoneData] = await Promise.all(
+      responses.map((res) => res.json()),
+    );
+    rhythmZone = timezoneData.zones.find(
+      (zone) => zone.id === timezoneData.defaultZone,
+    );
+    $("#rhythm-timezone").value = rhythmZone.id;
+    $("#rhythm-timezone").onchange = (event) => {
+      rhythmZone = timezoneData.zones.find(
+        (zone) => zone.id === event.target.value,
+      );
+      hideTooltip();
+      updateCalendarYears();
+      renderRhythm();
+      renderCalendar();
+    };
     data.colorOrder = new Map(
       aggregate(data.months).artists.map((a, i) => [a.id, i]),
     );
@@ -702,10 +743,7 @@ async function init() {
     $("#years")
       .querySelectorAll("button")
       .forEach((b) => (b.onclick = () => setYear(b.dataset.year)));
-    $("#calendar-year").innerHTML = data.meta.years
-      .map((y) => `<option value="${y}">${y}</option>`)
-      .join("");
-    $("#calendar-year").value = data.meta.years.at(-1);
+    updateCalendarYears();
     $("#calendar-year").onchange = renderCalendar;
     document.querySelectorAll("[data-metric]").forEach(
       (b) =>

@@ -1,5 +1,7 @@
 # On Repeat — Devin’s listening atlas
 
+[Open the listening atlas](https://dev1niscool.github.io/spotify-atlas/)
+
 An interactive portrait of music listening from April 2020 to September 2026. A flowing artist timeline, year filters, top artists and searchable tracks, a daily calendar, a UTC listening clock, and a downloadable listening receipt.
 
 ## Run locally

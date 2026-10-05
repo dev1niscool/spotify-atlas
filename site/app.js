@@ -32,6 +32,8 @@ const escapeHtml = (s) =>
       ],
   );
 const n = (v) => fmt.format(Math.round(v));
+const formatHour = (hour, compact = false) =>
+  `${hour % 12 || 12}${compact ? "" : ":00"} ${hour < 12 ? "AM" : "PM"}`;
 const amount = (item) => (metric === "ms" ? item.ms : item.plays);
 const units = (v, short = false) =>
   metric === "ms"
@@ -394,7 +396,7 @@ function renderRhythm() {
   const svg = d3.select("#clock");
   svg.selectAll("*").remove();
   svg
-    .attr("viewBox", "0 0 320 320")
+    .attr("viewBox", "-16 -16 352 352")
     .attr(
       "aria-label",
       `Listening distribution across 24 hours in ${rhythmZone.label}`,
@@ -425,13 +427,13 @@ function renderRhythm() {
     .attr("role", "img")
     .attr(
       "aria-label",
-      (d) => `${d}:00 ${rhythmZone.shortLabel}: ${units(values[d])}`,
+      (d) => `${formatHour(d)} ${rhythmZone.shortLabel}: ${units(values[d])}`,
     )
     .on("focus", (e, d) => {
       const b = e.target.getBoundingClientRect();
       tooltip(
         { clientX: b.x, clientY: b.y },
-        `<strong>${String(d).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
+        `<strong>${formatHour(d)} ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
       );
     })
     .on("blur", hideTooltip)
@@ -440,31 +442,26 @@ function renderRhythm() {
     .on("pointermove", (e, d) =>
       tooltip(
         e,
-        `<strong>${String(d).padStart(2, "0")}:00–${String((d + 1) % 24).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
+        `<strong>${formatHour(d)}–${formatHour((d + 1) % 24)} ${rhythmZone.shortLabel}</strong>${units(values[d])}`,
       ),
     )
     .on("pointerleave", hideTooltip)
     .append("title")
-    .text((d) => `${d}:00 ${rhythmZone.shortLabel}: ${units(values[d])}`);
-  [
-    [0, "00"],
-    [6, "06"],
-    [12, "12"],
-    [18, "18"],
-  ].forEach(([h, label]) => {
+    .text((d) => `${formatHour(d)} ${rhythmZone.shortLabel}: ${units(values[d])}`);
+  [0, 6, 12, 18].forEach((h) => {
     const a = (h / 24) * Math.PI * 2;
     g.append("text")
       .attr("x", Math.sin(a) * 151)
       .attr("y", -Math.cos(a) * 151 + 4)
       .attr("text-anchor", "middle")
-      .text(label);
+      .text(formatHour(h, true));
   });
   g.append("text")
     .attr("text-anchor", "middle")
     .attr("y", -6)
-    .style("font-size", "33px")
+    .style("font-size", "25px")
     .style("fill", "#e9f3dc")
-    .text(String(peak).padStart(2, "0") + ":00");
+    .text(formatHour(peak));
   g.append("text")
     .attr("text-anchor", "middle")
     .attr("y", 16)
@@ -472,7 +469,7 @@ function renderRhythm() {
     .style("letter-spacing", "2px")
     .text(`PEAK HOUR · ${rhythmZone.shortLabel}`);
   $("#clock-caption").innerHTML =
-    `The music peaks at <strong>${String(peak).padStart(2, "0")}:00 ${rhythmZone.shortLabel}</strong>. Each wedge adds up that hour across ${selectedYear === "all" ? "the whole archive" : selectedYear}.`;
+    `The music peaks at <strong>${formatHour(peak)} ${rhythmZone.shortLabel}</strong>. Each wedge adds up that hour across ${selectedYear === "all" ? "the whole archive" : selectedYear}.`;
   const dmax = Math.max(...days.map((d) => d[idx]), 1),
     total = days.reduce((s, d) => s + d[idx], 0),
     dp = days.findIndex((d) => d[idx] === dmax),
